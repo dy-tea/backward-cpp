@@ -86,27 +86,10 @@ backward_dep = declare_dependency(
   link_with: backward,
 )
 
-tests = ['test', 'stacktrace', 'rectrace', 'select_signals']
+tests_option = get_option('tests')
+if tests_option
+  tests = ['test', 'stacktrace', 'rectrace', 'select_signals']
 
-foreach test : tests
-  test(
-    'test_' + test,
-    executable(
-      'testexe_' + test,
-      'test/' + test + '.cpp',
-      'test/_test_main.cpp',
-      dependencies: backward_dep,
-    ),
-  )
-endforeach
-
-# https://github.com/bombela/backward-cpp/pull/242
-if meson.project_version() != '1.6' or host_machine.cpu_family() not in [
-  'aarch64',
-  'mips',
-  'mips64',
-]
-  tests = ['suicide']
   foreach test : tests
     test(
       'test_' + test,
@@ -114,8 +97,28 @@ if meson.project_version() != '1.6' or host_machine.cpu_family() not in [
         'testexe_' + test,
         'test/' + test + '.cpp',
         'test/_test_main.cpp',
-        cpp_args: args,
+        dependencies: backward_dep,
       ),
     )
   endforeach
+
+  # https://github.com/bombela/backward-cpp/pull/242
+  if meson.project_version() != '1.6' or host_machine.cpu_family() not in [
+    'aarch64',
+    'mips',
+    'mips64',
+  ]
+    tests = ['suicide']
+    foreach test : tests
+      test(
+        'test_' + test,
+        executable(
+          'testexe_' + test,
+          'test/' + test + '.cpp',
+          'test/_test_main.cpp',
+          cpp_args: args,
+        ),
+      )
+    endforeach
+  endif
 endif

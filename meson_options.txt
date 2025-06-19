@@ -14,3 +14,7 @@ option(
     'libunwind',
     type: 'feature',
 )
+option(
+    'tests',
+    type: 'boolean',
+)
